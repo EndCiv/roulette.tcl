@@ -3,9 +3,8 @@
 # EndCiv altered it to be more stupider
 # there was no copyright nor license when I got it
 # If you got a problem email endciv@fucktheconspiracy.com
-
-
 #list lucky comments
+
 set pull {
     "yells FUCK \"BOB\", and quickly pulls the trigger.."
     "shakes as he slowly raises the gun and pulls it's trigger.."
@@ -28,7 +27,7 @@ set pinkboy {
 
 #set vars
 set player1 ""
-set player2 "" 
+set player2 ""
 set curplayer ""
 set notcurplayer ""
 set timeout_timer 0
@@ -38,11 +37,14 @@ set bullit [rand 5]
 #file you want scores to be written
 set scorefile "roulette.txt"
 set kill_count 0
-set last_warn "" 
+set last_warn ""
 
 #binds
 bind pub - .spin spin:gun
 bind pub - .shoot shoot:gun
+bind pub - .play challenge:player
+bind pub - .reply reply:player
+"scripts/kill.tcl" 402L, 13997C                  1,1           Top
 bind pub - .play challenge:player
 bind pub - .reply reply:player
 bind pub - .accept accept
@@ -54,23 +56,22 @@ bind pub - .scores showall
 proc accept {nick host handle chan arg} {
     global rrstarttimer
             if {[utimerexists started]!=""} {killutimer $rrstarttimer}
-    reply:player $nick $host $handle $chan "accept" 
+    reply:player $nick $host $handle $chan "accept"
 }
 
 proc chicken {nick host handle chan arg} {
-    reply:player $nick $host $handle $chan "chicken" 
+    reply:player $nick $host $handle $chan "chicken"
 }
 
 #proc to get somebody to play with you
 proc challenge:player {nick host handle chan arg} {
     global botnick player1 player2 started timeout_timer kill_count last_warn notcurplayer
     global rrstarttimer rrchannel
-#        if {$player1 != $nick} {
-#            puthelp "PRIVMSG $chan :What the fucks wrong with you?"
-#            set player1 ""
-#            set player2 ""
-#            return 0
-#        }
+        if {$arg == $nick} {
+            puthelp "PRIVMSG $chan :..now we're talkin"
+            kill $nick $chan
+            return 0
+        }
         if {$player1 != ""} {
             puthelp "PRIVMSG $chan :Sorry $player1 allready challenged $player2"
             return 0
@@ -85,7 +86,10 @@ proc challenge:player {nick host handle chan arg} {
             puthelp "PRIVMSG $chan :And if you do it again I'm gonna shoot you."
             set last_warn $nick
             return 0
-        }        
+        }
+                                                 44,1          11%
+            return 0
+        }
         if {$arg == ""} {
             puthelp "PRIVMSG $chan :Type .challenge <nick> to start the game"
             return 0
@@ -99,7 +103,7 @@ proc challenge:player {nick host handle chan arg} {
             puthelp "PRIVMSG $chan :RRRRrrrrr....."
             kill $nick $chan
             return 0
-        }            
+        }
         set player1 $nick
         set player2 $arg
         set rrchannel $chan
@@ -125,17 +129,20 @@ proc reply:player {nick host handle chan arg} {
             return 0
         }
         if {$arg == ""} {
+                                                 84,13         22%
+        }
+        if {$arg == ""} {
             puthelp "NOTICE $nick :Type .accept to play or .no to decline"
             return 0
         }
         if {$started == 1} {
             puthelp "PRIVMSG $chan :Game allready running"
             return 0
-        }         
+        }
         if {$arg == "chicken"} {
             puthelp "PRIVMSG $chan :$nick Chickened out."
             set player1 ""
-            set player2 "" 
+            set player2 ""
             return 0
         }
         if {$arg == "accept"} {
@@ -145,7 +152,7 @@ proc reply:player {nick host handle chan arg} {
             putserv "notice $player1 :$nick accepted your challenge. $curplayer goes first."
             putserv "notice $player1 :type .shoot to fire the pistol now, or .spin to spin the cylinder first."
             putserv "notice $player2 :$curplayer goes first."
-            putserv "notice $player2 :type .shoot to fire the pistol now, or .spin to spin the cylinder first." 
+            putserv "notice $player2 :type .shoot to fire the pistol now, or .spin to spin the cylinder first."
             incr_stats $curplayer "" "" "" "" ""
             incr_stats $notcurplayer "" "" "" "" ""
             set started 1
@@ -161,10 +168,13 @@ proc spin:gun {nick host handle chan arg} {
         return 0
     }
     if {$started == 0} {
-        puthelp "PRIVMSG $chan :Game not running. Type .play <nick> to play"
+        shoot $nick $chan
         return 0
     }
-    set bullit [rand 5]
+    set bullit [rand 6]
+    puthelp "PRIVMSG $chan :$curplayer spins the chamber ..rrrrrrr"
+                                                 123,9         33%
+    set bullit [rand 6]
     puthelp "PRIVMSG $chan :$curplayer spins the chamber ..rrrrrrr"
     incr_stats $curplayer "" "" "" "+ 1" ""
     shoot:gun $nick $host $handle $chan $started
@@ -174,7 +184,7 @@ proc spin:gun {nick host handle chan arg} {
 proc shoot:gun {nick host handle chan arg} {
     global botnick player1 player2 turns curplayer started bullit lucky_msg pull notcurplayer playerstat
     if {$started == 0} {
-        puthelp "PRIVMSG $chan :Game not running. Type .play <nick> To play"
+        kill $nick $chan
         return 0
     }
     if {$nick != $curplayer} {
@@ -206,7 +216,11 @@ proc shoot:gun {nick host handle chan arg} {
                 set notcurplayer $player2
                 }
                 puthelp "notice $curplayer :your turn Type .shoot or .spin"
-                puthelp "notice $notcurplayer :$curplayer's Turn" 
+                puthelp "notice $notcurplayer :$curplayer's Turn"
+        return 0
+@   
+                                                 164,5         45%
+                puthelp "notice $notcurplayer :$curplayer's Turn"
         return 0
     #if bullit was on position 0 kick loser from chan and reset all used variables
     } else {
@@ -231,7 +245,7 @@ proc kill {nick chan} {
     for {set x 1} {$x < $bullit} {incr x} {
         puthelp "PRIVMSG $chan :klik..."
     }
-    puthelp "PRIVMSG $chan :...BANG!!! Yooou looooose! "
+    puthelp "PRIVMSG $chan :...BANG!!! "
     puthelp "KICK $chan $nick : Yep I'm still the king"
     return 0
 }
@@ -249,6 +263,9 @@ proc timeout { chan } {
         return 0
     }
 }
+                                                 206,17        57%
+    }
+}
 
 proc get_scores {} {
  global botnick scorefile rrscoresbyname rrscorestotal rrscores rrranksbyname rrranksbynum
@@ -263,7 +280,7 @@ proc get_scores {} {
  }
     if {[info exists rrscoresbyname]} {unset rrscoresbyname}
         if {[info exists rrranksbyname]} {unset rrranksbyname}
-            if {[info exists rrranksbynum]} {unset rrranksbynum}       
+            if {[info exists rrranksbynum]} {unset rrranksbynum}    
  set i 0
  while {$i<[llength $rrscores]} {
   set _item [lindex $rrscores $i]
@@ -291,6 +308,9 @@ proc incr_stats {who win loss shots spins played} {
             append _newscores "0,0,0,0,0,$who "
         }
         while {$i<[expr [llength $rrscores] - 1]} {
+                                                 247,5         68%
+        }
+        while {$i<[expr [llength $rrscores] - 1]} {
             set _item [lindex $rrscores $i]
             set _nick [lindex [split $_item ,] 5]
             set _win [lindex [split $_item ,] 0]
@@ -309,7 +329,7 @@ proc incr_stats {who win loss shots spins played} {
         append _newscores "0,0,0,0,0,$who "
     }
     set _sfile [open $scorefile w]
-    puts $_sfile "$_newscores"  
+    puts $_sfile "$_newscores"
     close $_sfile
     return 0
 }
@@ -326,9 +346,12 @@ proc show_score {text} {
     set _shots [lindex [split $_item ,] 2]
     set _played [lindex [split $_item ,] 4]
     set playerstat "$_nick played $_played games, won $_win, lost $_lost, took $_shots shots"
-    return 
+    return
 }
 
+proc showall {nick uhost handle chan arg} {
+    global botnick scorefile rrscoresbyname rrscorestotal rrscores rrranksbyname rrranksbynum
+                                                 289,9         80%
 proc showall {nick uhost handle chan arg} {
     global botnick scorefile rrscoresbyname rrscorestotal rrscores rrranksbyname rrranksbynum
     get_scores
@@ -371,6 +394,9 @@ proc showall {nick uhost handle chan arg} {
             set who [lindex [split $who "_"] 0]
             if {[string tolower $who] == [string tolower $_nick]} {set checked 1}
             set long [llength $checknick]
+                                                 329,1         91%
+            if {[string tolower $who] == [string tolower $_nick]} {set checked 1}
+            set long [llength $checknick]
             set spaces ""
             for {set i2 $long} {$i2 < $totallength} {incr i2} {
                 append spaces " "
@@ -393,7 +419,7 @@ proc show_player_score {nick host handle chan arg} {
      if {$arg == ""} { set arg $nick } else { set arg [lindex [split $arg " "] 0] }
      show_score $arg
      puthelp "PRIVMSG $chan : $playerstat"
-     return 1     
+     return 1
 }
 
 proc started {} {
@@ -402,4 +428,4 @@ proc started {} {
 
 
 proc tggamemsg {what} {global rrchannel;putquick "PRIVMSG $rrchannel :[tgbold]$what"}
-putlog "Modern Roulette Made By Dopeydwerg Loaded"
+putlog "Killer Roulette by YourMomma LOADED!!"
